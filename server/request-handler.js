@@ -47,13 +47,10 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-  if (request.url !== '/classes/room' || request.url !== '/classes/messages') {
-    response.writeHead(404, defaultCorsHeaders);
-  }
 
   var statusCode;
   // The outgoing status.
-  if (request.method === 'POST') {
+  if (request.method === 'POST' && (request.url === '/classes/room' || request.url === '/classes/messages')) {
     console.log('THIS IS A POST!');
     // request.url = '/classes/room';
     statusCode = 201;
@@ -73,11 +70,13 @@ var requestHandler = function(request, response) {
 
     response.end(JSON.stringify(messages));
 
-  } else if (request.method === 'GET') {
+  } else if (request.method === 'GET' && (request.url === '/classes/room' || request.url === '/classes/messages')) {
     
     statusCode = 200;
     response.writeHead(statusCode, defaultCorsHeaders);
     response.end(JSON.stringify(messages));
+  } else {
+    response.writeHead(404, 'nonexistant endpoint', {'Content-Type': 'text/html'});
   }
 
 

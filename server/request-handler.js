@@ -27,6 +27,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+// var fullBody;
+var messages = {results: []};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -45,44 +47,46 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
+  if (request.url !== '/classes/room' || request.url !== '/classes/messages') {
+    response.writeHead(404, defaultCorsHeaders);
+  }
+
   var statusCode;
   // The outgoing status.
   if (request.method === 'POST') {
+    console.log('THIS IS A POST!');
+    // request.url = '/classes/room';
     statusCode = 201;
     var fullBody = '';
 
     request.on('data', function(chunk) {
+      //when data starts coming in 
       fullBody += chunk.toString();
     });
 
+    response.writeHead(statusCode, defaultCorsHeaders);
     request.on('end', function() {
-      response.writeHead(200, 'OK', {'Content-Type': 'text/html'});
+      //last "chunk" of data
+      messages.results.push(JSON.parse(fullBody));
+
     });
 
-    var decodedBody = querystring.parse(fullBody);
-
-    response.write('<html><head><title>Post data</title></head><body><pre>');
-    response.write(utils.inspect(decodedBody));
-    response.write('</pre></body></html>');
-    
-    response.end();
+    response.end(JSON.stringify(messages));
 
   } else if (request.method === 'GET') {
+    
     statusCode = 200;
+    response.writeHead(statusCode, defaultCorsHeaders);
+    response.end(JSON.stringify(messages));
   }
 
 
 
-  if (request.url !== '/classes/room' || request.url !== '/classes/messages') {
-    response._responseCode = 404;
-  }
 
-  if (request.method === 'POST') {
-    request.on('data', function(chunk) {
-      console.log('Received body data:');
-      console.log(chunk.toString());
-    });
-  }
+  //404 code error
+  // if (request.url !== '/classes/room' || request.url !== '/classes/messages') {
+  //   response._responseCode = 404;
+  // }
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -95,7 +99,7 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+  // response.writeHead(statusCode, headers);
   
   
 
@@ -106,7 +110,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(JSON.stringify({results: []}));
+  // response.end(JSON.stringify({results: [fullBody]}));
 };
 
 

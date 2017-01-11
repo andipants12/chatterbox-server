@@ -1,6 +1,6 @@
 
 var http = require('http');
-var qs = require('querystring');
+var fs = require('fs');
 var handleRequest = require('./request-handler');
 
 

@@ -28,7 +28,7 @@ var defaultCorsHeaders = {
 };
 
 // var fullBody;
-var messages = {results: []};
+var messages = {results: [{username: 'Andi', text: 'meow meow meowwwww', roomname: 'dhdhjskdhf'}]};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -50,15 +50,14 @@ var requestHandler = function(request, response) {
 
   var statusCode;
   // The outgoing status.
-  if (request.method === 'POST' && (request.url === '/classes/room' || request.url === '/classes/messages')) {
-    console.log('THIS IS A POST!');
+  if (request.method === 'POST' /*&& (request.url === '/classes/room' || request.url === '/classes/messages')*/) {
     // request.url = '/classes/room';
     statusCode = 201;
-    var fullBody = '';
+    var fullBody;
 
     request.on('data', function(chunk) {
       //when data starts coming in 
-      fullBody += chunk.toString();
+      fullBody = chunk.toString();
     });
 
     response.writeHead(statusCode, defaultCorsHeaders);
@@ -70,8 +69,7 @@ var requestHandler = function(request, response) {
 
     response.end(JSON.stringify(messages));
 
-  } else if (request.method === 'GET' && (request.url === '/classes/room' || request.url === '/classes/messages')) {
-    
+  } else if (request.method === 'GET' || request.method === 'OPTIONS') {
     statusCode = 200;
     response.writeHead(statusCode, defaultCorsHeaders);
     response.end(JSON.stringify(messages));
